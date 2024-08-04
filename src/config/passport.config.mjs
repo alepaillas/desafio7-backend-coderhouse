@@ -33,7 +33,6 @@ const initializePassport = () => {
         try {
           const user = await userRepository.getByEmail(email);
           if (user) {
-            console.log("User already exists");
             return done(null, false, { message: "User already exists" });
           }
           const newUser = {
@@ -64,7 +63,6 @@ const initializePassport = () => {
           }
           return done(null, user); // User found and authenticated
         } catch (error) {
-          console.error("Error during login:", error);
           return done(error); // Pass the error to Passport
         }
       },
@@ -82,9 +80,6 @@ const initializePassport = () => {
       },
       async (accessToken, refreshToken, profile, done) => {
         try {
-          //console.log(profile);
-
-          // Obtener el correo electrónico del arreglo emails
           const email =
             profile.emails && profile.emails.length > 0
               ? profile.emails[0].value
@@ -97,7 +92,7 @@ const initializePassport = () => {
               ),
             );
           }
-          //console.log(email);
+
           const user = await userRepository.getByEmail(email);
           if (!user) {
             const newUser = {
@@ -113,7 +108,6 @@ const initializePassport = () => {
             return done(null, user); // User found and authenticated
           }
         } catch (error) {
-          console.error("Error during login:", error);
           return done(error); // Pass the error to Passport
         }
       },
@@ -126,9 +120,14 @@ const initializePassport = () => {
       {
         jwtFromRequest: ExtractJWT.fromExtractors([cookieExtractor]),
         secretOrKey: JWT_PRIVATE_KEY,
+        passReqToCallback: true,
       },
-      async (jwt_payload, done) => {
+      async (req, jwt_payload, done) => {
         try {
+          // Optionally check token expiration here
+          if (!jwt_payload) {
+            return done(new Error("JWT expired or invalid"), false);
+          }
           return done(null, jwt_payload);
         } catch (error) {
           return done(error);

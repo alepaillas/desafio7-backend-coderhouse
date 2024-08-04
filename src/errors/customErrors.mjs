@@ -22,9 +22,16 @@ const forbiddenError = (message = "Forbidden") => {
   return error;
 };
 
+const createError = (message = "An error occurred", status = 500) => {
+  const error = new Error(message);
+  error.status = status;
+  return error;
+};
+
 export default {
   notFoundError,
   badRequestError,
   unauthorizedError,
   forbiddenError,
+  createError,
 };

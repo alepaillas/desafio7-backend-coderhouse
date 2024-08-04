@@ -1,35 +1,68 @@
 import cartsRepository from "../persistences/mongo/repositories/carts.repository.mjs";
+import customErrors from "../errors/customErrors.mjs"; // Import custom error handling
 
 const getAll = async () => {
-  return await cartsRepository.getAll();
+  const carts = await cartsRepository.getAll();
+  if (!carts || carts.length === 0)
+    throw customErrors.notFoundError("No carts found.");
+  return carts;
 };
 
 const getById = async (id) => {
-  return await cartsRepository.getById(id);
+  const cart = await cartsRepository.getById(id);
+  if (!cart) throw customErrors.notFoundError(`Cart with id: ${id} not found.`);
+  return cart;
 };
 
 const create = async () => {
-  return await cartsRepository.create();
+  const cart = await cartsRepository.create();
+  if (!cart) throw customErrors.createError("Error creating cart.");
+  return cart;
 };
 
 const addProduct = async (cid, pid) => {
-  return await cartsRepository.addProduct(cid, pid);
+  const updatedCart = await cartsRepository.addProduct(cid, pid);
+  if (!updatedCart)
+    throw customErrors.notFoundError(
+      `Cart with id: ${cid} or product with id: ${pid} not found.`,
+    );
+  return updatedCart;
 };
 
 const updateProductQuantity = async (cid, pid, quantity) => {
-  return await cartsRepository.updateProductQuantity(cid, pid, quantity);
+  const updatedCart = await cartsRepository.updateProductQuantity(
+    cid,
+    pid,
+    quantity,
+  );
+  if (!updatedCart)
+    throw customErrors.notFoundError(
+      `Cart with id: ${cid} or product with id: ${pid} not found.`,
+    );
+  return updatedCart;
 };
 
 const deleteProduct = async (cid, pid) => {
-  return await cartsRepository.deleteProduct(cid, pid);
+  const updatedCart = await cartsRepository.deleteProduct(cid, pid);
+  if (!updatedCart)
+    throw customErrors.notFoundError(
+      `Cart with id: ${cid} or product with id: ${pid} not found.`,
+    );
+  return updatedCart;
 };
 
 const clear = async (cid) => {
-  return await cartsRepository.clear(cid);
+  const result = await cartsRepository.clear(cid);
+  if (!result)
+    throw customErrors.notFoundError(`Cart with id: ${cid} not found.`);
+  return result;
 };
 
 const handleCartStock = async (cid, removeOutOfStock = false) => {
   const cart = await cartsRepository.getById(cid);
+  if (!cart)
+    throw customErrors.notFoundError(`Cart with id: ${cid} not found.`);
+
   const productsNotinStock = [];
 
   // Check product stock and identify out-of-stock products
@@ -47,6 +80,10 @@ const handleCartStock = async (cid, removeOutOfStock = false) => {
       product._id.toString(),
     );
     updatedCart = await cartsRepository.deleteProducts(cid, productIdsToRemove);
+    if (!updatedCart)
+      throw customErrors.createError(
+        "Error removing out-of-stock products from the cart.",
+      );
   }
 
   return {
@@ -57,8 +94,11 @@ const handleCartStock = async (cid, removeOutOfStock = false) => {
 
 const getCartTotal = async (cid) => {
   const cart = await cartsRepository.getById(cid);
+  if (!cart)
+    throw customErrors.notFoundError(`Cart with id: ${cid} not found.`);
+
   let total = 0;
-  // por cada uno de los item en el carrito
+  // Calculate the total price of items in the cart
   for (const i of cart.products) {
     total += i.product.price * i.quantity;
   }

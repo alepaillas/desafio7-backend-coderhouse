@@ -20,8 +20,10 @@ const customLevels = {
 addColors(customLevels.colors);
 
 // Formateo para nuestros logs
-const logFormat = printf(({ level, message, timestamp }) => {
-  return `${timestamp} ${level}: ${message}`;
+const logFormat = printf(({ level, message, timestamp, stack }) => {
+  return stack
+    ? `${timestamp} ${level}: ${message}\nStack: ${stack}`
+    : `${timestamp} ${level}: ${message}`;
 });
 
 // Formato de la consola

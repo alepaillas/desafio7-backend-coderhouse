@@ -1,66 +1,56 @@
-import { generateToken } from "../utils/jwt.mjs";
+import sessionServices from "../services/sessions.services.mjs";
 import envConfig from "../config/env.config.mjs";
-import { userResponseDto } from "../dto/userResponse.dto.mjs";
-import { jwtResponseDto } from "../dto/jwtResponse.dto.mjs";
 
 const COOKIE_TOKEN = envConfig.COOKIE_TOKEN;
 
-const register = async (req, res) => {
+const register = async (req, res, next) => {
   try {
+    await sessionServices.register(req.body);
     res
       .status(201)
-      .json({ status: "success", msg: "User created succesfully." });
+      .json({ status: "success", msg: "User created successfully." });
   } catch (error) {
-    console.log(error);
-    res.status(500).json({ status: "Error", msg: "Internal Server Error." });
+    next(error);
   }
 };
 
-const login = async (req, res) => {
+const login = async (req, res, next) => {
   try {
-    const user = req.user;
-    const token = generateToken(user);
-    // Guardamos el token en una cookie
+    const { user, token } = await sessionServices.login(req.user);
     res.cookie(COOKIE_TOKEN, token, { httpOnly: true });
-    const userDto = userResponseDto(user);
-    req.session.user = user; // seteamos el user en la sesión para recuperarlo en el front
-    return res.status(200).json({ status: "success", payload: userDto, token });
+    req.session.user = user;
+    res.status(200).json({ status: "success", payload: user, token });
   } catch (error) {
-    console.log(error);
-    res.status(500).json({ status: "Error", msg: "Internal Server Error" });
+    next(error);
   }
 };
 
-const current = (req, res) => {
+const current = (req, res, next) => {
   try {
-    const user = req.user;
-    const jwtDTO = jwtResponseDto(user);
-    return res.status(200).json({ status: "success", payload: jwtDTO });
+    const jwtDTO = sessionServices.getCurrentUser(req.user);
+    res.status(200).json({ status: "success", payload: jwtDTO });
   } catch (error) {
-    console.log(error);
-    res.status(500).json({ status: "Error", msg: "Internal Server Error" });
+    next(error);
   }
 };
 
-const loginGithub = async (req, res) => {
+const loginGithub = async (req, res, next) => {
   try {
-    return res.status(200).json({ status: "success", payload: req.user });
+    const user = await sessionServices.loginGithub(req.user);
+    res.status(200).json({ status: "success", payload: user });
   } catch (error) {
-    console.log(error);
-    res.status(500).json({ status: "Error", msg: "Internal Server Error" });
+    next(error);
   }
 };
 
-const logout = async (req, res) => {
+const logout = async (req, res, next) => {
   try {
-    req.session.destroy();
-
+    await sessionServices.logout(req.session);
     res
       .status(200)
       .json({ status: "success", msg: "Sesión cerrada con éxito" });
   } catch (error) {
-    console.log(error);
-    res.status(500).json({ status: "Error", msg: "Internal Server Error" });
+    next(error);
   }
 };
 
