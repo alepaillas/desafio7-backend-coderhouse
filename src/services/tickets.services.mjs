@@ -1,4 +1,4 @@
-import ticketRepository from "../persistences/mongo/repositories/ticket.repository.mjs";
+import ticketRepository from "../persistences/mongo/repositories/tickets.repository.mjs";
 import { generateUUID } from "../utils/uuid.mjs";
 import customErrors from "../errors/customErrors.mjs"; // Import custom errors
 

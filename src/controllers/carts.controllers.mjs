@@ -1,7 +1,7 @@
 import customErrors from "../errors/customErrors.mjs";
 import cartsServices from "../services/carts.services.mjs";
 import productsServices from "../services/products.services.mjs";
-import ticketServices from "../services/ticket.services.mjs";
+import ticketServices from "../services/tickets.services.mjs";
 
 // devuelve todos los carritos
 const getAll = async (req, res, next) => {

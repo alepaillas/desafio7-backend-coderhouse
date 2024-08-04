@@ -1,6 +1,7 @@
 import productsRepository from "../persistences/mongo/repositories/products.repository.mjs";
 import { productResponseDto } from "../dto/productResponse.dto.mjs";
 import customErrors from "../errors/customErrors.mjs";
+import { generateProductsMocks } from "../mocks/product.mock.mjs";
 
 const getAll = async (query, options) => {
   const products = await productsRepository.getAll(query, options);
@@ -55,10 +56,21 @@ const deleteOne = async (id) => {
   return { message: `Product with id: ${id} successfully deleted.` };
 };
 
+// Add method for creating mock products
+const createMockProducts = async (amount) => {
+  const products = generateProductsMocks(amount);
+  for (const product of products) {
+    await productsRepository.create(product);
+    if (!product) throw customErrors.createError("Error creating product.");
+  }
+  return products;
+};
+
 export default {
   getAll,
   getById,
   update,
   deleteOne,
   create,
+  createMockProducts,
 };

@@ -90,10 +90,24 @@ const update = async (req, res, next) => {
   }
 };
 
+// Add controller method for creating mock products
+const createMockProducts = async (req, res, next) => {
+  try {
+    const { amount } = req.query; // Get the amount from query parameters
+    const products = await productsServices.createMockProducts(
+      parseInt(amount, 10) || 5,
+    ); // Default to 5 if not provided
+    res.status(200).json({ status: "success", products });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export default {
   getAll,
   getById,
   create,
   update,
   deleteOne,
+  createMockProducts,
 };
