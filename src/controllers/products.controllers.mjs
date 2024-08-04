@@ -55,6 +55,12 @@ const getById = async (req, res, next) => {
 const create = async (req, res, next) => {
   try {
     const product = req.body;
+    // Validate that 'title' and 'price' are provided
+    if (!product.title || !product.price) {
+      throw customErrors.badRequestError(
+        "Both 'title': 'string' and 'price': 'number' are required.",
+      );
+    }
     const newProduct = await productsServices.create(product);
     res.status(201).json({ status: "success", payload: newProduct });
   } catch (error) {
