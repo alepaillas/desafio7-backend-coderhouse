@@ -5,6 +5,7 @@ import {
   authorization,
 } from "../middlewares/passport.middleware.mjs";
 import sessionsControllers from "../controllers/sessions.controllers.mjs";
+import { generateUsersMocks } from "../mocks/user.mock.mjs";
 
 const router = Router();
 
@@ -43,5 +44,11 @@ router.get(
 );
 
 router.get("/logout", sessionsControllers.logout);
+
+router.get("/usersmocks", async (req, res) => {
+  const users = generateUsersMocks(5);
+
+  return res.status(200).json({ status: "ok", users });
+});
 
 export default router;

@@ -66,7 +66,7 @@ const getAll = async (req, res) => {
   }
 };
 
-const getById = async (req, res) => {
+const getById = async (req, res, next) => {
   try {
     const { id } = req.params;
     const product = await productsServices.getById(id);
@@ -77,7 +77,7 @@ const getById = async (req, res) => {
     res.status(200).json({ status: "success", payload: product });
   } catch (error) {
     console.log(error);
-    res.status(500).json({ status: "Error", msg: "Internal server error" });
+    next(error);
   }
 };
 

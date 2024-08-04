@@ -13,6 +13,7 @@ import initializePassport from "./config/passport.config.mjs";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import envConfig from "./config/env.config.mjs";
+import { errorHandler } from "./errors/errorHandler.mjs";
 
 // Definimos el puerto en el que se ejecutará el servidor, utilizando el puerto definido en las variables de entorno si está disponible, de lo contrario, utilizamos el puerto 8080 por defecto
 const PORT = envConfig.PORT || 8080;
@@ -80,6 +81,8 @@ const publicPath = new URL("./public", import.meta.url);
 app.use(express.static(publicPath.pathname));
 
 app.use("/", viewRoutes);
+
+app.use(errorHandler);
 
 // Escuchamos las solicitudes en el puerto definido y mostramos un mensaje en la consola cuando el servidor esté listo
 app.listen(PORT, () => {
